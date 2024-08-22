@@ -1,4 +1,5 @@
 import Layout from '@/components/Layout'
+import useTheme from '@/hooks/useTheme';
 import { Poppins } from 'next/font/google'
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -9,7 +10,7 @@ export const poppins = Poppins({
 })
 export default function Home() {
     const [desenvolvo, setIt] = useState("...")
-
+    const { theme, toggleTheme } = useTheme();
     useEffect(() => {
         const coisas = [
             "jogos",
@@ -23,6 +24,20 @@ export default function Home() {
         const randomCoisas = coisas[Math.floor(Math.random() * coisas.length)];
         setIt(randomCoisas)
     }, [])
+   /* useEffect(() => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+    }, []);
+
+    const toggleTheme = (newTheme) => {
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.classList.remove(theme);
+        document.documentElement.classList.add(newTheme);
+        setTheme(newTheme);
+    };*/
+
     return (<Layout>
         <div className="h-dvh w-full flex flex-col justify-center items-center gap-2">
             <p className="text-2xl font-bold">Olá, sou Igor.</p>
@@ -37,6 +52,20 @@ export default function Home() {
                     <Link href="/spotify">Spotify</Link>
                 </button>
             </div>
+            <div className="flex gap-2 mt-4">
+                    <button 
+                        className={`py-2 px-4 rounded ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-700 text-white'}`} 
+                        onClick={() => toggleTheme('light')}
+                    >
+                        Light Theme
+                    </button>
+                    <button 
+                        className={`py-2 px-4 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300'}`} 
+                        onClick={() => toggleTheme('dark')}
+                    >
+                        Dark Theme
+                    </button>
+                </div>
         </div>
     </Layout>)
 }

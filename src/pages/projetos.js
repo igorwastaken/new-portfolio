@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { FaArrowLeft } from 'react-icons/fa6'
 import { motion } from 'framer-motion'
 import Link from "next/link";
+import useTheme from "@/hooks/useTheme";
 
 const ProjectCard = ({ project }) => {
     const statuses = {
@@ -15,13 +16,13 @@ const ProjectCard = ({ project }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white shadow-md rounded-lg p-4 mb-4"
+            className="bg-white dark:bg-gray-900 shadow-md rounded-lg p-4 mb-4"
         >
             <Link href={project.link}>
                 <img src={project.image} alt={project.name} className="w-full h-32 object-cover rounded-md" />
-                <h2 className="text-xl font-bold mt-2">{project.name}</h2>
-                <p className="text-sm text-gray-600">{statuses[project.status]}</p>
-                <p className="text-gray-700 mt-2">{project.description}</p>
+                <h2 className="text-xl font-bold mt-2 dark:text-white">{project.name}</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{statuses[project.status]}</p>
+                <p className="text-gray-700 dark:text-gray-200 mt-2">{project.description}</p>
             </Link>
         </motion.div>
     );
@@ -65,6 +66,7 @@ export default function Projetos() {
             link: "https://bruteone.com/"
         }
     ]
+    const { theme } = useTheme();
     return (
         <Layout>
             <div className="p-5">

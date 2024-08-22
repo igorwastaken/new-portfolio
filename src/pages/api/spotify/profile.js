@@ -60,11 +60,13 @@ const fetchSpotify = async (endpoint, access_token) => {
     if (response.status === 401) {
         console.error('Unauthorized: Invalid or expired access token');
     }
-
+    if (response.status === 204) {
+        // Spotify API returns 204 No Content if nothing is currently playing
+        return null;
+    }
     if (response.status === 429) {
         console.error('Rate limited: Too many requests to Spotify API');
     }
-
     if (response.status !== 200) {
         console.error(`Spotify API request failed with status ${response.status}`);
     }
@@ -101,7 +103,7 @@ export default async function handler(req, res) {
         getNowPlaying(access_token)
     ])
     const song = await np;
-    const isPlaying = song.is_playing;
+    const isPlaying = np && np.is_playing;
 
     /* This should work */
     const songPlaying = isPlaying ? {

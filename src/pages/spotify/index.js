@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { FaArrowLeft, FaSpotify, FaHeadphones, FaCompactDisc } from "react-icons/fa6";
 import useSWR from "swr";
 import Vibrant from 'node-vibrant'
+import useTheme from "@/hooks/useTheme";
 const fetcher = (url) => fetch(url).then((r) => r.json())
 
 export default function Spotify() {
@@ -16,6 +17,8 @@ export default function Spotify() {
     const [mutedColor, setMutedColor] = useState("#FFFFFF")
     const [lightMutedColor, setLightColor] = useState("#000000")
     const { data: spotify, mutate, isLoading: loading } = useSWR("/api/spotify/profile", fetcher, { refreshInterval: 1000 })
+    const { theme } = useTheme();
+    
     useEffect(() => {
         const percentage = Math.floor(Math.random() * 100);
         if (percentage <= 10) {
@@ -56,7 +59,7 @@ export default function Spotify() {
                             <p className="text-xl font-bold gap-1">{spotify.profile.name}</p>
                             <p>{spotify.profile.followers} seguidores</p>
                             <div className="flex gap-2">
-                                <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-xl flex justify-center items-center text-center gap-2">
+                                <button className="bg-green-500 hover:bg-green-700 text-white dark:text-gray-900 font-bold py-2 px-3 rounded-xl flex justify-center items-center text-center gap-2">
                                     <FaSpotify className="text-lg" />
                                     <Link href={spotify.profile.url}>Spotify</Link>
                                 </button>
