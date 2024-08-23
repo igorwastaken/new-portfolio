@@ -24,6 +24,7 @@ export async function getServerSideProps(context) {
         }, // will be passed to the page component as props
     }
 }
+export const runtime = 'edge';
 
 export default function REDASPREDIRECT() {
     return (
