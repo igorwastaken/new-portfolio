@@ -25,3 +25,8 @@ export async function getServerSideProps(context) {
     }
 }
 
+export default function REDASPREDIRECT() {
+    return (
+        <div>Você deveria ser redirecionado...</div>
+    )
+}
