@@ -66,24 +66,63 @@ export default function Spotify() {
                             </div>
                         </div>
                     </div>
-                    {spotify.listening.isPlaying ? (<div>
-                        <hr className="w-48 h-1 mx-auto my-4 bg-gray-900 dark:bg-gray-100 border-0 rounded md:my-10" />
-                        <div className="overflow-hidden flex flex-col p-2 rounded-lg bg-gray-800 text-gray-100 dark:bg-gray-100 dark:text-gray-900">
-                            <p className="p-2 flex items-center gap-1 text-lg font-bold"><FaCompactDisc className="animate-spin"/> Ouvindo agora</p>
-                            <div className="overflow-hidden p-2 flex gap-2">
-                                <img className="rounded-lg" src={spotify.listening.now.albumImageUrl} width="100" height="100" alt={spotify.listening.now.title} />
-                                <div className="overflow-hidden w-full flex flex-col justify-center gap-1">
-                                    <p className="text-lg font-bold truncate">{spotify.listening.now.title}</p>
-                                    <p className="text-md font-medium truncate">{spotify.listening.now.artist}</p>
-                                    <progress
-                                        value={spotify.listening.now?.progress}
-                                        max={spotify.listening.now?.duration}
-                                        className={`w-full [&::-webkit-progress-bar]:rounded-lg h-2 [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-100 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 [&::-webkit-progress-value]:opacity-1 [&::-moz-progress-bar]:transition-all [&::-moz-progress-bar]:duration-500 [&::-moz-progress-bar]:bg-slate-100`}
-                                    ></progress>
-                                </div>
-                            </div>
-                        </div>
-                    </div>) : (<div></div>)}
+{spotify.listening.isPlaying ? (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+  >
+    <hr className="w-48 h-1 mx-auto my-4 bg-gray-900 dark:bg-gray-100 border-0 rounded md:my-10" />
+    <motion.div
+      className="overflow-hidden flex flex-col p-2 rounded-lg bg-gray-800 text-gray-100 dark:bg-gray-100 dark:text-gray-900"
+      initial={{ y: -10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+    >
+      <p className="p-2 flex items-center gap-1 text-lg font-bold">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+        >
+          <FaCompactDisc />
+        </motion.div>
+        Ouvindo agora
+      </p>
+      <motion.div
+        className="overflow-hidden p-2 flex gap-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+      >
+        <motion.img
+          className="rounded-lg"
+          src={spotify.listening.now.albumImageUrl}
+          width="100"
+          height="100"
+          alt={spotify.listening.now.title}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        />
+        <div className="overflow-hidden w-full flex flex-col justify-center gap-1">
+          <p className="text-lg font-bold truncate">{spotify.listening.now.title}</p>
+          <p className="text-md font-medium truncate">{spotify.listening.now.artist}</p>
+          <motion.progress
+            value={spotify.listening.now?.progress}
+            max={spotify.listening.now?.duration}
+            className={`w-full [&::-webkit-progress-bar]:rounded-lg h-2 [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-100 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 [&::-webkit-progress-value]:opacity-1 [&::-moz-progress-bar]:transition-all [&::-moz-progress-bar]:duration-500 [&::-moz-progress-bar]:bg-slate-100`}
+            initial={{ width: 0 }}
+            animate={{ width: `${(spotify.listening.now?.progress / spotify.listening.now?.duration) * 100}%` }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          ></motion.progress>
+        </div>
+      </motion.div>
+    </motion.div>
+  </motion.div>
+) : (
+  <div></div>
+)}
+
                     <hr className="w-48 h-1 mx-auto my-4 bg-gray-900 dark:bg-gray-100 border-0 rounded md:my-10" />
                     <div id="TopArtists" className="my-3 flex flex-col justify-center gap-2 w-full">
                         <p className="text-lg font-bold">Artistas mais escutado</p>
