@@ -22,6 +22,7 @@ function ImageWithLoading({ src, alt }) {
             className="absolute inset-0 flex items-center justify-center bg-gray-300 dark:bg-gray-700 rounded-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{opacity:0}}
           >
             {/* Skeleton Loader or Spinner */}
             <motion.div
@@ -104,7 +105,7 @@ export default function Spotify() {
             </div>
           </div>
           <hr className="w-48 h-1 mx-auto my-4 bg-gray-900 dark:bg-gray-100 border-0 rounded md:my-10" />
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {spotify.listening.isPlaying ? (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -120,11 +121,62 @@ export default function Spotify() {
                   <p className="p-2 flex items-center gap-1 text-lg font-bold">
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                     >
                       <FaCompactDisc />
                     </motion.div>
-                    Ouvindo agora
+                    <AnimatePresence mode="wait">
+                      <motion.span key={spotify.listening.now} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>Ouvindo agora</motion.span>
+                    </AnimatePresence>
+                  </p>
+                  <motion.div
+                    className="overflow-hidden p-2 flex gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, ease: "linear" }}
+                  >
+                    <ImageWithLoading src={spotify.listening.now.albumImageUrl} alt={spotify.listening.now.title} />
+                    <div className="overflow-hidden w-full flex flex-col justify-center gap-1">
+                      <AnimatePresence initial={false} mode="wait">
+                        <motion.p key={spotify.listening.now.title} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ y: "-10%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "10%", opacity: 0 }} className="relative text-lg font-bold truncate">{spotify.listening.now.title}</motion.p>
+                      </AnimatePresence>
+                      <AnimatePresence initial={false} mode="wait">
+                        <motion.p key={spotify.listening.now.artist} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative text-md font-medium truncate">{spotify.listening.now.artist}</motion.p>
+                      </AnimatePresence>
+                      <progress
+                        value={spotify.listening.now?.progress}
+                        max={spotify.listening.now?.duration}
+                        className={`w-full [&::-webkit-progress-bar]:rounded-lg h-2 [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-500 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 [&::-webkit-progress-value]:opacity-1 [&::-moz-progress-bar]:transition-all [&::-moz-progress-bar]:duration-500 [&::-moz-progress-bar]:bg-slate-100`}
+                      /*initial={{ width: 0 }}
+                      animate={{ width: `${(spotify.listening.now?.progress / spotify.listening.now?.duration) * 100}%` }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}*/
+                      ></progress>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <motion.div
+                  className="overflow-hidden flex flex-col p-2 rounded-lg bg-gray-800 text-gray-100 dark:bg-gray-100 dark:text-gray-900"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                >
+                  <p className="p-2 flex items-center gap-1 text-lg font-bold">
+                    <motion.div
+                      animate={{ rotate: 0 }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                    >
+                      <FaCompactDisc />
+                    </motion.div>
+                    <AnimatePresence mode="wait">
+                      <motion.span key={spotify.listening.now} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>Tocado recentemente</motion.span>
+                    </AnimatePresence>
                   </p>
                   <motion.div
                     className="overflow-hidden p-2 flex gap-2"
@@ -132,27 +184,17 @@ export default function Spotify() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
                   >
-                    <ImageWithLoading src={spotify.listening.now.albumImageUrl} alt={spotify.listening.now.title} />
+                    <ImageWithLoading src={spotify.listening.last.albumImageUrl} alt={spotify.listening.last.title} />
                     <div className="overflow-hidden w-full flex flex-col justify-center gap-1">
                       <AnimatePresence initial={false} mode="wait">
-                        <motion.p key={spotify.listening.now.title} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ x: "-100%", opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: "100%", opacity: 0 }} className="relative text-lg font-bold truncate">{spotify.listening.now.title}</motion.p>
-                        <motion.p key={spotify.listening.now.artist} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative text-md font-medium truncate">{spotify.listening.now.artist}</motion.p>
+                        <motion.p key={spotify.listening.last.title} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ y: "10%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "-10%", opacity: 0 }} className="relative text-lg font-bold truncate">{spotify.listening.last.title}</motion.p>
                       </AnimatePresence>
-                      <motion.progress
-                        value={spotify.listening.now?.progress}
-                        max={spotify.listening.now?.duration}
-                        className={`w-full [&::-webkit-progress-bar]:rounded-lg h-2 [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-100 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 [&::-webkit-progress-value]:opacity-1 [&::-moz-progress-bar]:transition-all [&::-moz-progress-bar]:duration-500 [&::-moz-progress-bar]:bg-slate-100`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(spotify.listening.now?.progress / spotify.listening.now?.duration) * 100}%` }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                      ></motion.progress>
+                      <AnimatePresence initial={false} mode="wait">
+                        <motion.p key={spotify.listening.last.artist} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative text-md font-medium truncate">{spotify.listening.last.artist}</motion.p>
+                      </AnimatePresence>
                     </div>
                   </motion.div>
                 </motion.div>
-              </motion.div>
-            ) : (
-              <motion.div>
-
               </motion.div>
             )}
           </AnimatePresence>
@@ -191,31 +233,26 @@ export default function Spotify() {
       </div>
     </Layout>)}
     <style jsx>{`
-          * {
-            /* overflow: hidden; 
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;*/
-          }
-          progress::-webkit-progress-value {
-            background-color: ${lightMutedColor};
-          }
-          progress::-webkit-progress-bar {
-            background-color: ${mutedColor};
-          }
-          progress::-webkit-progress-value {
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
-          }
-          progress::-moz-selection {
-            background-color: ${lightMutedColor};
-            color: ${mutedColor};
-          }
-          progress::selection {
-            background-color: ${lightMutedColor};
-            color: ${mutedColor};
-          }
-        `}</style>
+  progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    appearance: none;
+  }
+  progress::-webkit-progress-bar {
+    background-color: ${mutedColor} !important;
+    border-radius: 4px;
+  }
+  progress::-webkit-progress-value {
+    background-color: ${lightMutedColor} !important;
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+  }
+  progress::-moz-progress-bar {
+    background-color: ${lightMutedColor} !important;
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+  }
+`}</style>
   </AnimatePresence>)
 }

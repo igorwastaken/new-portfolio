@@ -49,6 +49,17 @@ const getCachedData = (key) => {
 const setCachedData = (key, data) => {
     cache[key] = { data, timestamp: Date.now() };
 };
+const LASTFM_API_KEY = process.env.LASTFM_API_KEY;
+const LASTFM_USERNAME = process.env.LASTFM_USERNAME;
+const LASTFM_RECENT_TRACKS_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USERNAME}&api_key=${LASTFM_API_KEY}&format=json&limit=1`;
+
+async function fetchLastFmRecentTrack() {
+    const response = await fetch(LASTFM_RECENT_TRACKS_ENDPOINT);
+    if (!response.ok) {
+        throw new Error('Failed to fetch data from Last.fm');
+    }
+    return response.json();
+}
 
 const fetchSpotify = async (endpoint, access_token) => {
     const response = await fetch(endpoint, {
@@ -96,12 +107,24 @@ export const getNowPlaying = async (access_token) => {
 
 export default async function handler(req, res) {
     const { access_token } = await getAccessToken();
-    const [profile, artists, tracks, np] = await Promise.all([
+    const [profile, artists, tracks, np, last] = await Promise.all([
         getProfile(access_token),
         getTop("artists", access_token),
         getTop("tracks", access_token),
-        getNowPlaying(access_token)
+        getNowPlaying(access_token),
     ])
+    const lastFmData = await fetchLastFmRecentTrack();
+    const recentTrack = lastFmData.recenttracks.track; // Assuming the most recent track is at index 0
+    const trackInfo = recentTrack.filter((q) => q).map((q, i) => {
+        return {
+            title: q.name,
+            artist: q.artist['#text'] ?? "Unknown",
+            album: q.album['#text'] ?? "Unknown",
+            albumImageUrl: q.image.find((img) => img.size === 'large')['#text'],
+            isPlaying: q['@attr']?.nowplaying === 'true',
+            playedAt: q.date ? new Date(q.date['#text']).getTime() : null,
+        }
+    })
     const song = await np;
     const isPlaying = np && np.is_playing;
 
@@ -116,7 +139,7 @@ export default async function handler(req, res) {
         progress: song.progress_ms,
         preview: song.item?.preview_url,
         current: true
-    } : {  };
+    } : {};
 
     return NextResponse.json({
         profile: {
@@ -128,6 +151,7 @@ export default async function handler(req, res) {
         listening: {
             isPlaying,
             now: songPlaying,
+            last: trackInfo[0]
             // debug: song
         },
         top: {
