@@ -36,3 +36,33 @@ body {
     text-wrap: balance;
   }
 }
+
+.spotify-now-playing {
+  display: flex;
+  align-items: center; /* Vertically center items */
+  gap: 10px; /* Add some spacing between the image and text */
+}
+
+.spotify-album-cover {
+  width: 50px; /* Set a fixed size for the album cover */
+  height: 50px;
+  border-radius: 5px; /* Add a slight border-radius for a smooth look */
+}
+
+.spotify-now-playing-text {
+  flex: 1; /* Allow the text to take up the remaining space */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis if the text is too long */
+}
+
+@media (max-width: 768px) {
+  .spotify-album-cover {
+      width: 40px;
+      height: 40px;
+  }
+
+  .spotify-now-playing-text {
+      font-size: 0.9rem;
+  }
+}
