@@ -56,7 +56,8 @@ const LASTFM_RECENT_TRACKS_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=
 async function fetchLastFmRecentTrack() {
     const response = await fetch(LASTFM_RECENT_TRACKS_ENDPOINT);
     if (!response.ok) {
-        throw new Error('Failed to fetch data from Last.fm');
+        console.error('Failed to fetch data from Last.fm');
+        return {};
     }
     return response.json();
 }
