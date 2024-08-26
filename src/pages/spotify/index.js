@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { FaArrowLeft, FaSpotify, FaHeadphones, FaCompactDisc } from "react-icons/fa6";
+import { IoMdStats } from "react-icons/io";
 import useSWR from "swr";
 import Vibrant from 'node-vibrant'
 import useTheme from "@/hooks/useTheme";
@@ -59,7 +60,7 @@ export default function Spotify() {
   const { theme } = useTheme();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0); // Estado para o índice da música atual
   const [tracks, setTracks] = useState([]); // Estado para armazenar as músicas do momento
-
+  const [artists, setArtists] = useState([]);
   useEffect(() => {
     const percentage = Math.floor(Math.random() * 100);
     if (percentage <= 10) {
@@ -86,11 +87,18 @@ export default function Spotify() {
     if (spotify && spotify.top && spotify.top.track) {
       const interval = setInterval(() => {
         setTracks(spotify.top.track);
-        console.log(spotify.top.track)
       }, 1000)
       return () => clearInterval(interval)
     }
   }, [spotify]);
+  useEffect(() => {
+    if(spotify && spotify.top && spotify.top.artist) {
+      const interval = setInterval(() => {
+        setArtists(spotify.top.artist);
+      }, 1000)
+      return () => clearInterval(interval);
+    }
+  }, [spotify])
   useEffect(() => {
     if (!tracks || tracks.length === 0) return;
 
@@ -225,9 +233,16 @@ export default function Spotify() {
           <div id="Stats">
             <p className="text-lg font-bold">Estatísticas</p>
             <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center overflow-hidden">
-              <motion.li className="overflow-hidden w-full gap-2 justify-center items-center flex flex-col md:items-start p-4 rounded-lg text-gray-900 bg-gray-100 dark:text-gray-100 dark:bg-gray-800">
+              <motion.li
+                viewport={{ once: true }} 
+                key={tracks.length>0?tracks[0].title:"Unknown Track"} 
+                transition={{ type: 'spring', stiffness: 260, damping: 60 }} 
+                initial={{ y: 100, opacity: 0 }} 
+                whileInView={{ y: 0, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="overflow-hidden w-full gap-2 justify-center items-center flex flex-col md:items-start p-4 rounded-lg text-gray-900 bg-gray-100 dark:text-gray-100 dark:bg-gray-800">
                 <p className="text-xs">Músicas do momento</p>
-                {tracks.length > 0 && (
+                {tracks.length > 0 ? (
                   <div className="w-full gap-2 flex justify-center items-center">
                     <ImageWithLoading src={tracks[currentTrackIndex].albumImageUrl} alt={tracks[currentTrackIndex].title} />
                     <div className="overflow-hidden w-full flex flex-col gap-0.5 justify-center">
@@ -255,8 +270,22 @@ export default function Spotify() {
                           {tracks[currentTrackIndex].artist}
                         </motion.p>
                       </AnimatePresence>
-                      <div className="flex">
-                        <p className="flex gap-1 text-center items-center justify-center">
+                      <div className="flex gap-2">
+                      <p className="px-1 flex gap-1 text-center items-center justify-center">
+                          <IoMdStats />
+                          <AnimatePresence mode="wait">
+                            <motion.span
+                              key={tracks[currentTrackIndex].rank}
+                              transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }}
+                              initial={{ y:"20%",opacity: 0 }}
+                              animate={{ y:0, opacity: 1 }}
+                              exit={{ y: "-20%", opacity: 0 }}
+                            >
+                              {tracks[currentTrackIndex].rank}
+                            </motion.span>
+                          </AnimatePresence>
+                        </p>
+                        <p className="px-1 flex gap-1 text-center items-center justify-center">
                           <FaCompactDisc />
                           <AnimatePresence mode="wait">
                             <motion.span
@@ -273,7 +302,7 @@ export default function Spotify() {
                       </div>
                     </div>
                   </div>
-                )}
+                ): (<div></div>)}
               </motion.li>
             </ul>
           </div>

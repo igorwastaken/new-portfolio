@@ -53,7 +53,7 @@ const LASTFM_API_KEY = process.env.LASTFM_API_KEY;
 const LASTFM_USERNAME = process.env.LASTFM_USERNAME;
 const LASTFM_RECENT_TRACKS_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USERNAME}&api_key=${LASTFM_API_KEY}&format=json&limit=1`;
 const LASTFM_TOP_TRACKS_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${LASTFM_USERNAME}&api_key=${LASTFM_API_KEY}&format=json`;
-
+const LASTFM_TOP_ARTISTS_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LASTFM_USERNAME}&api_key=${LASTFM_API_KEY}&format=json`
 async function fetchLastFmRecentTrack() {
     const response = await fetch(LASTFM_RECENT_TRACKS_ENDPOINT);
     if (!response.ok) {
@@ -64,6 +64,14 @@ async function fetchLastFmRecentTrack() {
 }
 async function fetchLastFmTopTrack() {
     const response = await fetch(LASTFM_TOP_TRACKS_ENDPOINT);
+    if(!response.ok) {
+        console.error('Failed to fetch data from Last.fm');
+        return {};
+    }
+    return response.json();
+}
+async function fetchLastFmTopArtist() {
+    const response = await fetch(LASTFM_TOP_ARTISTS_ENDPOINT);
     if(!response.ok) {
         console.error('Failed to fetch data from Last.fm');
         return {};
@@ -128,7 +136,9 @@ export default async function handler(req, res) {
     ])
     const lastFmData = await fetchLastFmRecentTrack();
     const lastFmTrack = await fetchLastFmTopTrack();
+    const lastFmArtist = await fetchLastFmTopArtist();
     const topTrack = lastFmTrack.toptracks.track;
+    const topArtist = lastFmArtist.topartists.artist;
     const recentTrack = lastFmData.recenttracks.track; // Assuming the most recent track is at index 0
 
     const trackInfo = recentTrack.filter((q) => q).map((q, i) => {
@@ -177,7 +187,14 @@ export default async function handler(req, res) {
                 playCount: q.playcount,
                 duration: q.duration,
                 artist: q.artist.name,
+                rank: q["@attr"].rank,
                // debug: topTrack
+            })),
+            artist: topArtist.map((q) => ({
+                name: q.name,
+                avatar: q.image.find((img) => img.size === 'medium')['#text'],
+                playCount: q.playcount,
+                rank: q["@attr"].rank
             })),
             artists: artists.items?artists.items.map((q) => ({
                 name: q.name,
