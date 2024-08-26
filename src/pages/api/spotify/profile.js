@@ -52,10 +52,19 @@ const setCachedData = (key, data) => {
 const LASTFM_API_KEY = process.env.LASTFM_API_KEY;
 const LASTFM_USERNAME = process.env.LASTFM_USERNAME;
 const LASTFM_RECENT_TRACKS_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USERNAME}&api_key=${LASTFM_API_KEY}&format=json&limit=1`;
+const LASTFM_TOP_TRACKS_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${LASTFM_USERNAME}&api_key=${LASTFM_API_KEY}&format=json`;
 
 async function fetchLastFmRecentTrack() {
     const response = await fetch(LASTFM_RECENT_TRACKS_ENDPOINT);
     if (!response.ok) {
+        console.error('Failed to fetch data from Last.fm');
+        return {};
+    }
+    return response.json();
+}
+async function fetchLastFmTopTrack() {
+    const response = await fetch(LASTFM_TOP_TRACKS_ENDPOINT);
+    if(!response.ok) {
         console.error('Failed to fetch data from Last.fm');
         return {};
     }
@@ -78,9 +87,12 @@ const fetchSpotify = async (endpoint, access_token) => {
     }
     if (response.status === 429) {
         console.error('Rate limited: Too many requests to Spotify API');
+        return {}
     }
     if (response.status !== 200) {
         console.error(`Spotify API request failed with status ${response.status}`);
+        console.log(await response.text())
+        return {}
     }
 
     return response.json();
@@ -115,7 +127,10 @@ export default async function handler(req, res) {
         getNowPlaying(access_token),
     ])
     const lastFmData = await fetchLastFmRecentTrack();
+    const lastFmTrack = await fetchLastFmTopTrack();
+    const topTrack = lastFmTrack.toptracks.track;
     const recentTrack = lastFmData.recenttracks.track; // Assuming the most recent track is at index 0
+
     const trackInfo = recentTrack.filter((q) => q).map((q, i) => {
         return {
             title: q.name,
@@ -156,18 +171,26 @@ export default async function handler(req, res) {
             // debug: song
         },
         top: {
-            artists: artists.items.map((q) => ({
+            track: topTrack.map((q) => ({
+                title: q.name,
+                albumImageUrl: q.image.find((img) => img.size === 'medium')['#text'],
+                playCount: q.playcount,
+                duration: q.duration,
+                artist: q.artist.name,
+               // debug: topTrack
+            })),
+            artists: artists.items?artists.items.map((q) => ({
                 name: q.name,
                 avatar: q.images[0].url,
                 url: q.external_urls.spotify,
-            })),
-            tracks: tracks.items.map((q) => ({
+            })):[],
+            tracks: tracks.items?tracks.items.map((q) => ({
                 album: q.album.name,
                 artist: q.artists.map((_artist) => _artist.name).join(', '),
                 albumImageUrl: q.album.images[0].url,
                 title: q.name,
                 url: q.external_urls.spotify,
-            }))
+            })):[]
         }
     })
 }
