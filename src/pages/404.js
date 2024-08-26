@@ -1,9 +1,11 @@
 import Layout from "@/components/Layout"
+import useTheme from "@/hooks/useTheme"
 import { useEffect, useState } from "react"
 import { Fa0, Fa4 } from "react-icons/fa6"
 
 export default function FourZeroFour() {
     const [emojis, setEmoji] = useState("😭")
+    const { theme, setTheme } = useTheme();
     useEffect(() => {
         const interval = setInterval(() => {
             const arrayEmoji = [

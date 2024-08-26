@@ -1,9 +1,10 @@
 import Layout from '@/components/Layout'
 import useTheme from '@/hooks/useTheme';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Poppins } from 'next/font/google'
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaA, FaBook, FaBots, FaSpotify } from 'react-icons/fa6';
+import { FaA, FaBook, FaBots, FaMoon, FaSpotify, FaSun } from 'react-icons/fa6';
 export const poppins = Poppins({
     subsets: ['latin'],
     weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"]
@@ -39,6 +40,18 @@ export default function Home() {
     };*/
 
     return (<Layout>
+        <div className="fixed flex justify-end items-center w-full p-4">
+            <AnimatePresence mode="wait">
+                <motion.button
+                   initial={{rotate:0}}
+                   animate={{rotate:360}}
+                   transition={{stiffness: 260, damping: 60}}
+                   key={theme}
+                   onClick={() => toggleTheme(theme==='light'?'dark':'light')}>
+                    {theme==='dark'?<FaSun className="text-2xl"/>:<FaMoon className="text-2xl"/>}
+                </motion.button>
+            </AnimatePresence>
+        </div>
         <div className="h-dvh w-full flex flex-col justify-center items-center gap-2">
             <p className="text-2xl font-bold">Olá, sou Igor.</p>
             <p>Eu desenvolvo {desenvolvo}</p>
@@ -52,7 +65,7 @@ export default function Home() {
                     <Link href="/spotify">Spotify</Link>
                 </button>
             </div>
-            <div className="flex gap-2 mt-4">
+            {/*<div className="flex gap-2 mt-4">
                     <button 
                         className={`py-2 px-4 rounded ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-700 text-white'}`} 
                         onClick={() => toggleTheme('light')}
@@ -65,7 +78,7 @@ export default function Home() {
                     >
                         Dark Theme
                     </button>
-                </div>
+                </div>*/}
         </div>
     </Layout>)
 }

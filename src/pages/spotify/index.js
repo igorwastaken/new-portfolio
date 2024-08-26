@@ -232,7 +232,7 @@ export default function Spotify() {
           <hr className="w-48 h-1 mx-auto my-4 bg-gray-900 dark:bg-gray-100 border-0 rounded md:my-10" />
           <div id="Stats">
             <p className="text-lg font-bold">Estatísticas</p>
-            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center overflow-hidden">
+            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center overflow-hidden gap-2">
               <motion.li
                 viewport={{ once: true }} 
                 key={tracks.length>0?tracks[0].title:"Unknown Track"} 
@@ -296,6 +296,79 @@ export default function Spotify() {
                               exit={{ opacity: 0 }}
                             >
                               {tracks[currentTrackIndex].playCount}
+                            </motion.span>
+                          </AnimatePresence>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ): (<div></div>)}
+              </motion.li>
+              <motion.li
+                viewport={{ once: true }} 
+                key={artists.length>0?artists[0].title:"Unknown Artist"} 
+                transition={{ type: 'spring', stiffness: 260, damping: 60 }} 
+                initial={{ y: 100, opacity: 0 }} 
+                whileInView={{ y: 0, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="overflow-hidden w-full gap-2 justify-center items-center flex flex-col md:items-start p-4 rounded-lg text-gray-900 bg-gray-100 dark:text-gray-100 dark:bg-gray-800">
+                <p className="text-xs">Artistas do momento</p>
+                {artists.length > 0 ? (
+                  <div className="w-full gap-2 flex justify-center items-center">
+                    <div className="rounded-full">
+                      <ImageWithLoading src={artists[currentTrackIndex].avatar} alt={tracks[currentTrackIndex].name} />
+                    </div>
+                    <div className="overflow-hidden w-full flex flex-col gap-0.5 justify-center">
+                      <AnimatePresence mode="wait">
+                        <motion.p
+                          key={tracks[currentTrackIndex].title}
+                          transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }}
+                          initial={{ y: "10%", opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: "-10%", opacity: 0 }}
+                          className="relative text-md md:text-lg font-bold truncate"
+                        >
+                          {artists[currentTrackIndex].name}
+                        </motion.p>
+                      </AnimatePresence>
+                      {/*<AnimatePresence mode="wait">
+                        <motion.p
+                          key={tracks[currentTrackIndex].artist}
+                          transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="relative text-md font-medium truncate"
+                        >
+                          {tracks[currentTrackIndex].artist}
+                        </motion.p>
+                      </AnimatePresence>*/}
+                      <div className="flex gap-2">
+                      <p className="px-1 flex gap-1 text-center items-center justify-center">
+                          <IoMdStats />
+                          <AnimatePresence mode="wait">
+                            <motion.span
+                              key={artists[currentTrackIndex].rank}
+                              transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }}
+                              initial={{ y:"20%",opacity: 0 }}
+                              animate={{ y:0, opacity: 1 }}
+                              exit={{ y: "-20%", opacity: 0 }}
+                            >
+                              {artists[currentTrackIndex].rank}
+                            </motion.span>
+                          </AnimatePresence>
+                        </p>
+                        <p className="px-1 flex gap-1 text-center items-center justify-center">
+                          <FaCompactDisc />
+                          <AnimatePresence mode="wait">
+                            <motion.span
+                              key={artists[currentTrackIndex].playCount}
+                              transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                            >
+                              {artists[currentTrackIndex].playCount}
                             </motion.span>
                           </AnimatePresence>
                         </p>
