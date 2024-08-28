@@ -25,6 +25,7 @@ export class StatsFM {
         return {
             isPlaying: item.isPlaying,
             progress: item.progressMs,
+            device: item.deviceName,
             song: {
                 name: item.track.name,
                 artists: item.track.artists,

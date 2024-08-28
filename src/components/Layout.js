@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 import { poppins } from "@/pages";
 
-const Layout = ({ children }) => (
+const Layout = ({ children, className }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -12,9 +12,8 @@ const Layout = ({ children }) => (
       stiffness: 260,
       damping: 20,
     }}
-    className={poppins.className}
+    className={poppins.className + " " + className}
   >
-    <Navbar/>
     {children}
   </motion.div>
 );

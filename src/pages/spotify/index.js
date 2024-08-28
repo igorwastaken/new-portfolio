@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaSpotify, FaHeadphones, FaCompactDisc, FaArrowUp, FaAngleUp, FaAngleDown, FaCircle, FaBorderNone } from "react-icons/fa6";
+import { FaArrowLeft, FaSpotify, FaHeadphones, FaCompactDisc, FaArrowUp, FaAngleUp, FaAngleDown, FaCircle, FaBorderNone, FaAnglesUp } from "react-icons/fa6";
 import { IoMdStats } from "react-icons/io";
 import useSWR from "swr";
 import Vibrant from 'node-vibrant'
@@ -39,14 +39,15 @@ function ImageWithLoading({ src, alt }) {
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
           <img
-            className={`rounded-lg w-[100px] ${isLoading ? 'opacity-0' : 'opacity-1'} object-cover`}
+            className={`rounded-lg ${isLoading ? 'opacity-0' : 'opacity-1'} object-cover`}
             width="100"
             height="100"
             src={src}
             alt={alt}
             loading="lazy"
-            objectFit="cover"
             style={{
+              width: "100",
+              height: "100",
               objectFit: "cover"
             }}
             onLoad={() => setIsLoading(false)}
@@ -67,8 +68,10 @@ export default function Spotify() {
   const { theme } = useTheme();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0); // Estado para o índice da música atual
   const [currentArtistIndex, setCurrentArtistIndex] = useState(0);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [tracks, setTracks] = useState([]); // Estado para armazenar as músicas do momento
   const [artists, setArtists] = useState([]);
+  const [messagesArray, setMessageArray] = useState([])
   useEffect(() => {
     const percentage = Math.floor(Math.random() * 100);
     if (percentage <= 10) {
@@ -113,16 +116,33 @@ export default function Spotify() {
     const intervalId = setInterval(() => {
       setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % tracks.length);
       setCurrentArtistIndex((prevIndex) => (prevIndex + 1) % artists.length);
+      setCurrentMessageIndex((prevIndex) => (prevIndex + 1) % messagesArray.length)
       mutate();
     }, 5000);
 
     return () => clearInterval(intervalId);
   }, [tracks]);
+  useEffect(() => {
+    if(loading) return;
+    if(!spotify && !spotify.listening) return;
+    const messages = [
+      spotify.listening.now.isPlaying?`Ouvindo agora em um ${spotify.listening.now.device}`:`Por agora, a playlist está pausada.`,
+      `Ouvi pela última vez ${spotify.listening.last.song.name}`,
+      (<a href="https://stats.fm/igorwastaken" className="text-blue-600 dark:text-blue-300">stats.fm</a>),
+      (<a href="https://open.spotify.com/playlist/2BbTZ0WHEf7nkq5kH9WmXU" className="text-blue-600 dark:text-blue-300">playlist: metal</a>),
+      (<a href="https://open.spotify.com/playlist/4pUDvGQUfW4taF38cSPxWT" className="text-blue-600 dark:text-blue-300">playlist: rock</a>),
+      (<a href="https://open.spotify.com/playlist/58U2KDyKpg7fDz0tvWWshI" className="text-blue-600 dark:text-blue-300">playlist: rap</a>),
+      (<a href="https://open.spotify.com/playlist/5ahErdsTauk2uOSBzneWa8" className="text-blue-600 dark:text-blue-300">playlist: indie</a>),
+      (<a href="https://open.spotify.com/playlist/4Tl6mzWn9TQqCxYlmJSczu" className="text-blue-600 dark:text-blue-300">playlist: jazz</a>),
+    ]
+    setMessageArray(messages)
+    console.log(messagesArray)
+  }, [spotify])
   const indicator = {
     'UP': (<FaAngleUp />),
     'DOWN': (<FaAngleDown />),
     'SAME': (<FaCircle />),
-    'NEW': (<FaAngleUp />),
+    'NEW': (<FaAnglesUp />),
     'NONE': (<></>)
   }
   return (<AnimatePresence>
@@ -130,8 +150,8 @@ export default function Spotify() {
       <div className="h-dvh w-full flex justify-center items-center">
         <LoadingSpinner />
       </div>
-    </Layout>) : (<Layout>
-      <div className="p-5">
+    </Layout>) : (<Layout className="p-5 w-full h-dvh flex flex-col md:justify-center md:items-center">
+      <div className="w-full">
         <motion.button transition={{ type: "spring", duration: 1 }} initial={{ x: "20%", opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: "-20%", opacity: 0 }} className="flex items-center text-center gap-1" onClick={() => router.back()}>
           {a ? <FaSpotify className="font-bold text-xl m-2" /> : <FaArrowLeft className="font-bold" />}
           <p className="text-xl font-bold">Spotify</p>
@@ -139,8 +159,11 @@ export default function Spotify() {
         <div className="p-5">
           <div id="ProfileOverview" className="flex items-center gap-2 w-full">
             <img className="rounded-full min-w-12 w-18 max-w-32" src={spotify.profile.avatar} width="100" height="100" alt="Igor's Avatar" />
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
               <p className="text-xl font-bold gap-1">{spotify.profile.name}</p>
+              <AnimatePresence mode="wait">
+                <motion.p transition={{stiffness: 160, damping: 60}} key={currentMessageIndex} initial={{y:5,opacity:0}} animate={{y:0,opacity:1}} exit={{y:-5,opacity:0}} className="text-xs">{messagesArray[currentMessageIndex]}</motion.p>
+              </AnimatePresence>
               <div className="flex gap-2">
                 <button className="bg-green-500 hover:bg-green-700 text-white dark:text-gray-900 font-bold py-2 px-3 rounded-xl flex justify-center items-center text-center gap-2">
                   <FaSpotify className="text-lg" />
@@ -232,7 +255,7 @@ export default function Spotify() {
                     <ImageWithLoading src={spotify.listening.last.song.image} alt={spotify.listening.last.song.title} />
                     <div className="overflow-hidden w-full flex flex-col justify-center gap-1">
                       <AnimatePresence initial={false} mode="wait">
-                        <motion.p key={spotify.listening.last.song.title} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ y: "10%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "-10%", opacity: 0 }} className="relative text-lg font-bold truncate">{spotify.listening.last.song.name}</motion.p>
+                        <motion.p key={spotify.listening.last.song.name} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ y: "-10%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "10%", opacity: 0 }} className="relative text-lg font-bold truncate">{spotify.listening.last.song.name}</motion.p>
                       </AnimatePresence>
                       <AnimatePresence initial={false} mode="wait">
                         <motion.p key={spotify.listening.last.song.artists.map((_artist) => _artist.name).join(', ')} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative text-md font-medium truncate">{spotify.listening.last.song.artists.map((_artist) => _artist.name).join(', ')}</motion.p>
@@ -312,9 +335,9 @@ export default function Spotify() {
                             <motion.span
                               key={tracks[currentTrackIndex].indicator}
                               transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
+                              initial={{ y:5, opacity: 0 }}
+                              animate={{ y:0, opacity: 1 }}
+                              exit={{ y:-5,opacity: 0 }}
                             >
                               {indicator[tracks[currentTrackIndex].indicator]}
                             </motion.span>
@@ -337,7 +360,7 @@ export default function Spotify() {
                 {artists.length > 0 ? (
                   <div className="w-full gap-2 flex justify-center items-center">
                     <AnimatePresence mode="wait">
-                      <motion.div style={{ borderRadius: "100%" }} key={artists[currentArtistIndex].avatar} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="rounded-full">
+                      <motion.div style={{ borderRadius: "100%", width: "100", height:"100" }} key={artists[currentArtistIndex].avatar} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="">
                         <ImageWithLoading src={artists[currentArtistIndex].avatar} alt={artists[currentArtistIndex].name} />
                       </motion.div>
                     </AnimatePresence>
@@ -386,9 +409,9 @@ export default function Spotify() {
                             <motion.span
                               key={artists[currentArtistIndex].indicator}
                               transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
+                              initial={{ y:5, opacity: 0 }}
+                              animate={{ y:0, opacity: 1 }}
+                              exit={{ y:-5, opacity: 0 }}
                             >
                               {indicator[artists[currentArtistIndex].indicator]}
                             </motion.span>
