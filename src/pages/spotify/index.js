@@ -128,12 +128,12 @@ export default function Spotify() {
     const messages = [
       spotify.listening.now.isPlaying?`Ouvindo agora em um ${spotify.listening.now.device}`:`Por agora, a playlist está pausada.`,
       `Ouvi pela última vez ${spotify.listening.last.song.name}`,
-      (<a href="https://stats.fm/igorwastaken" className="text-blue-600 dark:text-blue-300">stats.fm</a>),
-      (<a href="https://open.spotify.com/playlist/2BbTZ0WHEf7nkq5kH9WmXU" className="text-blue-600 dark:text-blue-300">playlist: metal</a>),
-      (<a href="https://open.spotify.com/playlist/4pUDvGQUfW4taF38cSPxWT" className="text-blue-600 dark:text-blue-300">playlist: rock</a>),
-      (<a href="https://open.spotify.com/playlist/58U2KDyKpg7fDz0tvWWshI" className="text-blue-600 dark:text-blue-300">playlist: rap</a>),
-      (<a href="https://open.spotify.com/playlist/5ahErdsTauk2uOSBzneWa8" className="text-blue-600 dark:text-blue-300">playlist: indie</a>),
-      (<a href="https://open.spotify.com/playlist/4Tl6mzWn9TQqCxYlmJSczu" className="text-blue-600 dark:text-blue-300">playlist: jazz</a>),
+      (<a key="ref-1" href="https://stats.fm/igorwastaken" className="text-blue-600 dark:text-blue-300">stats.fm</a>),
+      (<a key="ref-2" href="https://open.spotify.com/playlist/2BbTZ0WHEf7nkq5kH9WmXU" className="text-blue-600 dark:text-blue-300">playlist: metal</a>),
+      (<a key="ref-3" href="https://open.spotify.com/playlist/4pUDvGQUfW4taF38cSPxWT" className="text-blue-600 dark:text-blue-300">playlist: rock</a>),
+      (<a key="ref-4" href="https://open.spotify.com/playlist/58U2KDyKpg7fDz0tvWWshI" className="text-blue-600 dark:text-blue-300">playlist: rap</a>),
+      (<a key="ref-5" href="https://open.spotify.com/playlist/5ahErdsTauk2uOSBzneWa8" className="text-blue-600 dark:text-blue-300">playlist: indie</a>),
+      (<a key="ref-6" href="https://open.spotify.com/playlist/4Tl6mzWn9TQqCxYlmJSczu" className="text-blue-600 dark:text-blue-300">playlist: jazz</a>),
     ]
     setMessageArray(messages)
     console.log(messagesArray)
