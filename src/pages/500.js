@@ -9,7 +9,7 @@ export default function FiveZeroZero() {
     return (
         <Layout>
             <div className="h-dvh w-full flex flex-col justify-center items-center">
-                <p className="flex"><Fa5/><Fa0/><Fa5/></p>
+                <p className="flex"><Fa5/><Fa0/><Fa0/></p>
                 <p>Hmmm, algo deu errado</p>
                 <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl flex justify-center items-center text-center gap-2" onClick={() => window.location.refresh()}>Tentar de novo?</button>
             </div>

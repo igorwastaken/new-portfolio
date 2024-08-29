@@ -102,16 +102,14 @@ export class StatsFM {
 
 export default async function Profile() {
     const stats = new StatsFM("igorwastaken");
-    const now = await stats.listening();
-    const last = await stats.lastListened();
     const profile = await stats.profile();
     console.log(profile)
     return NextResponse.json({
         profile,
-        listening: {
+        /*listening: {
             now,
             last
-        },
+        },*/
         z_message: "Data provided by stats.fm"
     })
 }
