@@ -294,7 +294,7 @@ export default function Spotify() {
                 exit={{ opacity: 0 }}
                 className="overflow-hidden w-full gap-2 justify-center items-center flex flex-col md:items-start p-4 rounded-lg text-gray-900 bg-gray-100 dark:text-gray-100 dark:bg-gray-800">
                 <p className="text-xs">Músicas do momento</p>
-                {tracks.length > 0 ? (
+                {tracks.length !== 0 ? (
                   <div className="w-full gap-2 flex justify-center items-center">
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -372,7 +372,7 @@ export default function Spotify() {
                 exit={{ opacity: 0 }}
                 className="overflow-hidden w-full gap-2 justify-center items-center flex flex-col md:items-start p-4 rounded-lg text-gray-900 bg-gray-100 dark:text-gray-100 dark:bg-gray-800">
                 <p className="text-xs">Artistas do momento</p>
-                {artists.length > 0 ? (
+                {artists.length !== 0 ? (
                   <div className="w-full gap-2 flex justify-center items-center">
                     <AnimatePresence mode="wait">
                       <motion.div style={{ borderRadius: "100%", width: "100", height: "100" }} key={artists[currentArtistIndex].avatar} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="">
