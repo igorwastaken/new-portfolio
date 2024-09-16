@@ -39,14 +39,14 @@ export default function Projetos() {
     const projetos = [
         {
             name: "What The Floosh Game",
-            status: 2,
+            status: 0,
             description: "\"WTFL\" é um jogo endless-runner criado no início de Outubro de 2023 por Igor.\nAtualmente o projeto foi pausado.",
             image: "/projetos/wtfl.png",
             link: "https://igorwastaken.itch.io/wtfl-game"
         },
         {
             name: "Bloggor",
-            status: 2,
+            status: 1,
             description: "Bloggor foi um blog de variedades e entretenimento brasileiro, criado por Igor e Goldino.\nAtualmente o projeto foi pausado devido à problemas financeiros e falta de recursos para manter ativo.",
             image: "/projetos/bloggor.png",
             link: "#"
