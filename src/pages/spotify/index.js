@@ -7,9 +7,32 @@ import { useEffect, useState } from "react";
 import { FaArrowLeft, FaSpotify, FaHeadphones, FaCompactDisc, FaArrowUp, FaAngleUp, FaAngleDown, FaCircle, FaBorderNone, FaAnglesUp } from "react-icons/fa6";
 import { IoMdStats } from "react-icons/io";
 import useSWR from "swr";
-import Vibrant from 'node-vibrant'
+import Vibrant from 'node-vibrant/worker'
 import useTheme from "@/hooks/useTheme";
+import { Lrc } from "react-lrc";
 const fetcher = (url) => fetch(url).then((r) => r.json())
+/*const Line = styled.div<{ active: boolean }>`
+  min-height: 10px;
+  padding: 5px 20px;
+
+  font-size: 16px;
+  text-align: center;
+
+  ${({ active }) => css`
+    color: ${active ? 'green' : 'black'};
+  `}
+`;*/
+export function parseSyncedLyrics(syncedLyrics) {
+  const lines = syncedLyrics.split("\n"); // Divide por linhas
+  return lines.map((line) => {
+    const match = line.match(/^\[(\d{2}):(\d{2}\.\d{2})\] (.+)$/); // Regex para capturar timestamp e conteúdo
+    if (!match) return null; // Ignora linhas inválidas
+    const [_, minutes, seconds, content] = match;
+    const timestamp = parseFloat(minutes) * 60 * 1000 + parseFloat(seconds) * 1000; // Converte para ms
+    return { timestamp, content };
+  }).filter(Boolean); // Remove entradas nulas
+}
+
 function ImageWithLoading({ src, alt }) {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,8 +87,9 @@ export default function Spotify() {
   const [color, setColor] = useState("#FFFFFF")
   const [mutedColor, setMutedColor] = useState("#FFFFFF")
   const [lightMutedColor, setLightColor] = useState("#000000")
-  const { data:spotify, mutate, isLoading: loading } = useSWR("/api/v1/spotify/profile", fetcher, { revalidateOnFocus: true })
-  const { data:queue, mutate:mutatequeue, isLoading:loadingqueue } = useSWR('/api/v1/spotify/queue', fetcher, { refreshInterval: 5000 });
+  const { data: spotify, mutate, isLoading: loading } = useSWR("/api/v1/spotify/profile", fetcher, { revalidateOnFocus: true })
+  const { data: queue, mutate: mutatequeue, isLoading: loadingqueue } = useSWR('/api/v1/spotify/queue', fetcher);
+  const { data: lyrics, mutate: mutatelyrics, isLoading: loadinglyrics } = useSWR('/api/v1/lyrics', fetcher)
   const { theme } = useTheme();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0); // Estado para o índice da música atual
   const [currentArtistIndex, setCurrentArtistIndex] = useState(0);
@@ -73,6 +97,43 @@ export default function Spotify() {
   const [tracks, setTracks] = useState([]); // Estado para armazenar as músicas do momento
   const [artists, setArtists] = useState([]);
   const [messagesArray, setMessageArray] = useState([])
+  const [parsedLyrics, setLyrics] = useState("");
+  const [localProgress, setLocalProgress] = useState(0); // Progresso local
+  const [isPlaying, setIsPlaying] = useState(false); // Estado de reprodução
+  const [ startTime, setStartTime ] = useState(0);
+  useEffect(() => {
+    if (!queue || !queue.listening.now.isPlaying) return;
+  
+    const initialProgress = queue.listening.now.progress; // Progresso inicial
+    setStartTime(Date.now()); // Tempo de início
+  
+    setIsPlaying(queue.listening.now.isPlaying); // Atualiza o estado de reprodução
+  
+    const interval = setInterval(() => {
+      if (!isPlaying) return; // Não atualiza se estiver pausado
+      const elapsed = Date.now() - startTime; // Tempo decorrido
+      setLocalProgress(initialProgress + elapsed); // Atualiza o progresso localmente
+    }, 1000); // Atualiza a cada segundo
+  
+    return () => clearInterval(interval); // Limpa o intervalo ao desmontar
+  }, [queue]);
+  
+  // Atualize o estado de reprodução ao pausar ou reproduzir
+  useEffect(() => {
+    if (queue && queue.listening.now.isPlaying !== isPlaying) {
+      setIsPlaying(queue.listening.now.isPlaying);
+    }
+  }, [queue]);
+  useEffect(() => {
+    if (!isPlaying) return; // Pausa o progresso
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      setLocalProgress(initialProgress + elapsed);
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+  
   useEffect(() => {
     const percentage = Math.floor(Math.random() * 100);
     if (percentage <= 10) {
@@ -124,6 +185,7 @@ export default function Spotify() {
       return () => clearInterval(interval);
     }
   }, [spotify])
+
   useEffect(() => {
     if (!tracks || tracks.length === 0) return;
 
@@ -131,17 +193,26 @@ export default function Spotify() {
       setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % tracks.length);
       setCurrentArtistIndex((prevIndex) => (prevIndex + 1) % artists.length);
       setCurrentMessageIndex((prevIndex) => (prevIndex + 1) % messagesArray.length)
-      mutate();
-      mutatequeue()
     }, 5000);
 
     return () => clearInterval(intervalId);
   }, [tracks]);
   useEffect(() => {
     if (loading) return;
+    setLyrics(parseSyncedLyrics(lyrics.lyrics.syncedLyrics))
+    const intervalId = setInterval(() => {
+      mutate();
+      mutatequeue();
+      mutatelyrics();
+    }, 5000)
+    return () => clearInterval(intervalId);
+  }, [tracks]);
+
+  useEffect(() => {
+    if (loading) return;
     if (!queue && !queue.listening) return;
     const messages = [
-      queue.listening.now.isPlaying?`Ouvindo agora em um ${queue.listening.now.device}`:`Por agora, a playlist está pausada.`,
+      queue.listening.now.isPlaying ? `Ouvindo agora em um ${queue.listening.now.device}` : `Por agora, a playlist está pausada.`,
       `Ouvi pela última vez ${queue.listening.last.song.name}`,
       (<a key="ref-1" href="https://stats.fm/igorwastaken" className="text-blue-600 dark:text-blue-300">stats.fm</a>),
       (<a key="ref-2" href="https://open.spotify.com/playlist/2BbTZ0WHEf7nkq5kH9WmXU" className="text-blue-600 dark:text-blue-300">playlist: metal</a>),
@@ -227,7 +298,7 @@ export default function Spotify() {
                         <motion.p key={queue.listening.now.song.artists.map((_artist) => _artist.name).join(', ')} transition={{ duration: 0.5, ease: 'easeInOut', stiffness: 100 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative text-md font-medium truncate">{queue.listening.now.song.artists.map((_artist) => _artist.name).join(', ')}</motion.p>
                       </AnimatePresence>
                       <progress
-                        value={queue.listening.now?.progress}
+                        value={localProgress}
                         max={queue.listening.now?.song.duration}
                         className={`w-full [&::-webkit-progress-bar]:rounded-lg h-2 [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-500 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 [&::-webkit-progress-value]:opacity-1 [&::-moz-progress-bar]:transition-all [&::-moz-progress-bar]:duration-500 [&::-moz-progress-bar]:bg-slate-100`}
                       /*initial={{ width: 0 }}
@@ -237,6 +308,41 @@ export default function Spotify() {
                     </div>
                   </motion.div>
                 </motion.div>
+                <Lrc
+                  lrc={lyrics.lyrics.syncedLyrics}
+                  currentMillisecond={localProgress}
+                  lineRenderer={({ active, line: { content }, index }) => {
+                    // Determine a faixa de linhas a serem mostradas
+                    const activeIndex = lyrics.lyrics.syncedLyrics
+                      .split("\n")
+                      .findIndex((line) => line.includes(content));
+
+                    //const activeIndex = parsedLyrics.findIndex((line) => line.timestamp === queue.listening.now?.progress);
+                    const rangeStart = Math.max(activeIndex - 2, 0);
+                    const rangeEnd = Math.min(activeIndex + 2,  lyrics.lyrics.syncedLyrics.length);
+
+
+                    // Renderiza apenas as linhas dentro da faixa
+                    if (index >= rangeStart && index <= rangeEnd) {
+                      return (
+                        <motion.p
+                          key={index}
+                          animate={active ? { scale: 1 } : { scale: 0.8, opacity: 0.5 }}
+                          style={{
+                            textAlign: "center",
+                            fontWeight: active ? "bold" : "normal",
+                            fontSize: active ? "1.2em" : "1em",
+                            color: active ? "#1DB954" : "#888",
+                          }}
+                        >
+                          {content}
+                        </motion.p>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+
               </motion.div>
             ) : (
               <motion.div
