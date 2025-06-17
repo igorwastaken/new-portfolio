@@ -38,6 +38,13 @@ export default function Projetos() {
       }*/
     const projetos = [
         {
+            name: 'snipp.gg',
+            status: 0,
+            description: "Snipp is the best way to share your epic moments with the world.",
+            image: "https://cdn.snipp.gg/banner.png",
+            link: "https://snipp.gg/"
+        },
+        {
             name: "What The Floosh Game",
             status: 0,
             description: "\"WTFL\" é um jogo endless-runner criado no início de Outubro de 2023 por Igor.\nAtualmente o projeto foi pausado.",
@@ -60,7 +67,7 @@ export default function Projetos() {
         },
         {
             name: "BruteOne",
-            status: 0,
+            status: 1,
             description: "The BruteOne Blog, where a small, dedicated team of cybersecurity experts provides cutting-edge research and accessible insights on the latest trends and data breaches, all driven by a passion for innovation and excellence in the ever-evolving world of cyber threats.",
             image: "/projetos/bruteone.png",
             link: "https://bruteone.com/"
