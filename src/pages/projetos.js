@@ -38,6 +38,13 @@ export default function Projetos() {
       }*/
     const projetos = [
         {
+            name: 'lrclib api wrapper',
+            status: 0,
+            description: "lrclib-api is a TypeScript-based wrapper for the lrclib.net API, designed to fetch song lyrics and metadata. It supports both plain and synchronized lyrics, providing a simple and efficient way to access lyrics data.",
+            image: "https://lrclib.net/assets/lrclib-370c57eb.png",
+            link: "https://lrclib.js.org/"
+        },
+        {
             name: 'snipp.gg',
             status: 0,
             description: "Snipp is the best way to share your epic moments with the world.",
@@ -46,7 +53,7 @@ export default function Projetos() {
         },
         {
             name: "What The Floosh Game",
-            status: 0,
+            status: 2,
             description: "\"WTFL\" é um jogo endless-runner criado no início de Outubro de 2023 por Igor.\nAtualmente o projeto foi pausado.",
             image: "/projetos/wtfl.png",
             link: "https://igorwastaken.itch.io/wtfl-game"
@@ -60,7 +67,7 @@ export default function Projetos() {
         },
         {
             name: "@notigorwastaken",
-            status: 0,
+            status: 2,
             description: "Meu canal no YouTube.\nComédia, diversão, e tudo mais. O meu canal é focado em gameplays junto com meus amigos.",
             image: "/projetos/notigorwastaken.jpg",
             link: "https://www.youtube.com/@notigorwastaken"
