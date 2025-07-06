@@ -88,7 +88,7 @@ export default function Projetos() {
                     <FaArrowLeft className="font-bold" />
                     <p className="text-xl font-bold">Projetos</p>
                 </motion.button>
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-3">
+                <div className="mt-5 grid grid-cols-1 grid-rows-1 sm:grid-cols-2 sm:grid-rows-2 lg:grid-rows-3 lg:grid-cols-3 grid-flow-col gap-4 p-3">
                     {projetos.map((project, index) => (
                         <ProjectCard key={index} project={project} />
                     ))}
